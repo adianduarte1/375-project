@@ -1,1 +1,85 @@
 datasets/
+```{r}
+library(readr)
+obesity <- read_csv("obes.csv")
+head(obesity)
+```
+
+```{r}
+library(dplyr)
+obes<-filter(obesity, YearStart %in% c(2015, 2016, 2017, 2018, 2019))
+obes
+```
+
+```{r}
+obes<-filter(obes, Topic== 'Obesity')
+obes
+```
+```{r}
+obes1<-arrange(obes, LocationDesc)
+obes1
+```
+```{r}
+obes2 <- obes1 %>%
+  select(-RowId, -LocationAbbr, -Datasource, -Data_Value_Footnote_Symbol, -Geolocation, -ClassID, -TopicID, -QuestionID, -LocationID, -YearEnd)
+obes2
+```
+```{r}
+obes3<-arrange(obes2, YearStart)
+obes3
+```
+```{r}
+obes3 <- obes3 %>%
+  rename(
+    Date = YearStart,
+    State = LocationDesc)
+obes3
+```
+
+```{r}
+ppi <- read_csv("ProductPriceIndex.csv")
+head(ppi)
+```
+```{r}
+library(lubridate)
+ppi$Year <- year(ymd(ppi$date))
+ppi
+```
+```{r}
+ppi<-select(ppi, -date, - farmprice)
+ppi
+```
+```{r}
+ppi<-ppi%>%
+  select(Year, everything())
+ppi
+```
+
+```{r}
+ppi2<- ppi %>%
+  rename(
+    Georgia = atlantaretail,
+    Illinois = chicagoretail,
+    California = losangelesretail,
+    NewYork = newyorkretail,
+    Date = Year)
+ppi2
+```
+```{r}
+library(tidyverse)
+ppi22 <- ppi2 %>%
+  pivot_longer(cols = c(Georgia, Illinois, California, NewYork),
+               names_to = "State",
+               values_to = "Price")
+ppi22
+```
+
+```{r}
+ppi22<-ppi22%>%
+  select(Date, productname, State, Price, averagespread)
+ppi22
+```
+```{r}
+join<-inner_join(ppi22, obes3)
+join
+```
